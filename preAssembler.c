@@ -1,34 +1,31 @@
 #include <string.h>
 #include <ctype.h>
 #include "globals.h"
-#include "hashtable.h"
 #include "utils.h"
+#include "preAssembler.h"
 #include "vars.h"
+#include "hashtable.h"
 
 void preAssembler(FILE *file, FILE *fp)
 {
-
     char line[LINESIZE + 2];
     char macro[SYMBOL_MAX_SIZE + 1];
     unsigned char index = 0;
     int line_num = 1;
-    err = FALSE;
-
-    while (fgets(line, LINESIZE + 2, file) != EOF)
+    while (fgets(line, LINESIZE + 2, file) != NULL)
     {
+        err = FALSE;
+        warn = FALSE;
 
-        MOVE_TO_NOT_WHITE(line, index);
-        if (line[index] == 0 || line[index] == ';')
-        {
-            continue;
-        }
         if (strlen(line) == LINESIZE + 1 && line[LINESIZE] != '\n')
         {
-            warn = WARNING_LINE_TOO_LONG;
+            line[LINESIZE] = '\n';
+            line[LINESIZE+1] = '\0';
+            print_error_message(WARNING_LINE_TOO_LONG, line_num);
         }
         if (!pre_process_line(line, fp, macro))
         {
-            write_error(line_num);
+            print_error_message(err, line_num);
         }
         line_num++;
     }
@@ -37,20 +34,22 @@ void preAssembler(FILE *file, FILE *fp)
 int pre_process_line(char *line, FILE *fp, char *macro)
 {
     int index = 0;
-    int length = 0;
     char field[SYMBOL_MAX_SIZE + 1];
 
-    hashEntry *tmp;
-
-    length += find_next_symbol(&line[index], field, ' ');
-    index += length;
-    if (length == SYMBOL_MAX_SIZE)
-    {
-        field[0] = '\0';
-    }
-    length = 0;
-    tmp = lookup(macroTable, field);
     MOVE_TO_NOT_WHITE(line, index);
+
+    if (line[index] == '\0' || line[index] == ';')
+        return TRUE;
+
+    int length = find_next_symbol(&line[index], field, ' ');
+    index += length;
+
+    if (length == SYMBOL_MAX_SIZE)
+        field[0] = '\0';
+
+    node *tmp = lookup(&macroTable, field);
+    MOVE_TO_NOT_WHITE(line, index);
+
     if (tmp != NULL)
     {
         if (!is_end_of_line(line[index]))
@@ -58,35 +57,27 @@ int pre_process_line(char *line, FILE *fp, char *macro)
             err = MACRO_UNEXPECTED_CHARS;
             return FALSE;
         }
-        for (node *current = tmp->lines; current != NULL; current = current->next)
-        {
+        for (node *current = tmp; current != NULL; current = current->next)
             fputs(current->line, fp);
-        }
         return TRUE;
     }
-    if (strcmp(field, "mcr"))
-    {
-        length += find_next_symbol(&line[index], macro, ' ');
-        index += length;
 
+    if (strcmp(field, "mcr") == 0)
+    {
+        length = find_next_symbol(&line[index], macro, ' ');
+        index += length;
         if (length == SYMBOL_MAX_SIZE)
-        {
             field[0] = '\0';
-        }
 
         MOVE_TO_NOT_WHITE(line, index);
-        if (!is_end_of_line(line[index]))
+
+        if (!is_end_of_line(line[index]) || (macro[0] && !is_valid_macro(macro)))
         {
             err = MACRO_UNEXPECTED_CHARS;
             return FALSE;
         }
-        if (macro[0] && !is_valid_macro(macro))
-        {
-            macro[0] = '\0';
-            return FALSE;
-        }
     }
-    else if (strcmp(field, "endmcr"))
+    else if (strcmp(field, "endmcr") == 0)
     {
         macro[0] = '\0';
         if (!is_end_of_line(line[index]))
@@ -95,16 +86,15 @@ int pre_process_line(char *line, FILE *fp, char *macro)
             return FALSE;
         }
     }
-    else if (macro[0])
-    {
-        insert(macroTable, macro, line);
-    }
     else
     {
-        fputs(line, fp);
+        if (macro[0])
+            insert(&macroTable, macro, line);
+        else
+            fputs(line, fp);
     }
+    return TRUE;
 }
-
 
 // int find_next(char *line, char *field)
 // {

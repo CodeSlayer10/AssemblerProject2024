@@ -7,7 +7,6 @@
 
 opcode find_operation(char *line, int *index)
 {
-    int i = 0;
     char tmp_operation[LINESIZE + 1];
     opcode result;
     MOVE_TO_NOT_WHITE(line, *index);
@@ -34,18 +33,22 @@ addressing_type get_addressing_type(char *operand)
         return IMMEDIATE_ADDR;
     }
 
+
     if (find_register_by_name(operand) != R_NONE)
     {
         return REGISTER_ADDR;
     }
 
-    if (is_valid_symbol(operand))
+    if (is_valid_symbol(operand) )
     {
         return DIRECT_ADDR;
     }
 
+    
+
     if ((opening = strchr(operand, '[')) == NULL)
     {
+        err = INVALID_ADDRESSING_TYPE;
         return ERROR_ADDR;
     }
     *opening = '\0';
@@ -64,7 +67,7 @@ addressing_type get_addressing_type(char *operand)
     opening++;
     *closing = '\0';
 
-    int is_valid = (is_int_str(opening) || (locateSymbol_by_attribute(&symbols, opening, MDEFINE)));
+    int is_valid = (is_int_str(opening) || (is_valid_symbol(opening) && locateSymbol_by_attribute(&symbols, opening, MDEFINE)));
     *closing = ']';
     if (!is_valid)
     {
@@ -95,7 +98,6 @@ int operationHandler(char *line, addressing_type *first_operand, addressing_type
         err = COMMAND_UNEXPECTED_CHAR;
         return FALSE;
     }
-    int i = 0;
 
     index += find_next_token(&line[index], operand1, ',');
 
@@ -113,7 +115,6 @@ int operationHandler(char *line, addressing_type *first_operand, addressing_type
             err = COMMAND_UNEXPECTED_CHAR; // Redundant comma at the end
             return FALSE;
         }
-        int j = 0;
         index += find_next_token(&line[index], operand2, ',');
 
         *second_operand = get_addressing_type(operand2);

@@ -81,20 +81,6 @@ void *checkedAlloc(long size)
 	return ptr;
 }
 
-// void *checkedRealloc(void *ptr, long size)
-// {
-// 	ptr = realloc(ptr, size);
-// 	if (ptr == NULL)
-// 	{
-
-// 		printf("Error: Memory allocation failed.");
-// 	}
-// 	return ptr;
-// }
-
-// check validity of macro name
-
-// check if reserved name -> register name or operation name
 int is_reserved(char *name, int is_label)
 {
 	if (find_instruction_by_name(name) != NONE_IN)
@@ -167,6 +153,44 @@ int get_operand_count_by_opcode(opcode operation)
 	return operationLookupTable[operation].operands;
 }
 
+int is_alphanum_str(char *str)
+{
+	int i = 0;
+	for (; str[i] && isalnum(str[i]); i++)
+		;
+	if (i == 0 || str[i] != '\0')
+	{
+		return FALSE;
+	}
+	return TRUE;
+}
+
+int is_int_str(char *str)
+{
+	int i = 0;
+	if (str[0] == '+' || str[0] == '-')
+		str++;
+	for (; str[i] && isdigit(str[i]); i++)
+		;
+	if (i == 0 || str[i] != '\0')
+	{
+		return FALSE;
+	}
+	return TRUE;
+}
+
+int is_printable_str(char *str)
+{
+	int i = 0;
+	for (; str[i] && isprint(str[i]); i++)
+		;
+	if (i == 0 || str[i] != '\0')
+	{
+		return FALSE;
+	}
+	return TRUE;
+}
+
 int is_valid_symbol(char *symbol)
 {
 	// Check if the first character of the symbol is not '\0' (non-empty string)
@@ -205,44 +229,6 @@ int is_valid_symbol(char *symbol)
 	}
 
 	// If all conditions are met, return true
-	return TRUE;
-}
-
-int is_alphanum_str(char *str)
-{
-	int i = 0;
-	for (; str[i] && isalnum(str[i]); i++)
-		;
-	if (i == 0 || str[i] != '\0')
-	{
-		return FALSE;
-	}
-	return TRUE;
-}
-
-int is_int_str(char *str)
-{
-	int i = 0;
-	if (str[0] == '+' || str[0] == '-')
-		str++;
-	for (; str[i] && isdigit(str[i]); i++)
-		;
-	if (i == 0 || str[i] != '\0')
-	{
-		return FALSE;
-	}
-	return TRUE;
-}
-
-int is_printable_str(char *str)
-{
-	int i = 0;
-	for (; str[i] && isprint(str[i]); i++)
-		;
-	if (i == 0 || str[i] != '\0')
-	{
-		return FALSE;
-	}
 	return TRUE;
 }
 
@@ -354,9 +340,9 @@ char *convert_to_base_4(unsigned int num)
 
 void reset_global_vars()
 {
+	resetTable(macroTable);
 	resetSymbolTable(&symbols);
 	reset_ext(&externals);
-	// resetTable(macroTable);
 	has_entry = FALSE;
 	has_external = FALSE;
 	has_error = FALSE;
@@ -395,164 +381,166 @@ int find_next_token(char *line, char *token, char del)
 	return index;
 }
 
-void print_error_message(error error_code, int line_num) {
+void print_error_message(error error_code, int line_num)
+{
 	fprintf(stderr, "line %d: ", line_num);
-    switch(error_code) {
-        case WARNING_LINE_TOO_LONG:
-            fprintf(stderr, "Warning: Line too long.\n");
-            break;
-        case NUM_OUT_OF_RANGE:
-            fprintf(stderr, "Number out of range.\n");
-            break;
-        case MACRO_UNEXPECTED_CHARS:
-            fprintf(stderr, "Unexpected characters in macro.\n");
-            break;
-        case MACRO_TOO_LONG:
-            fprintf(stderr, "Macro is too long.\n");
-            break;
-        case MACRO_CANT_BE_EMPTY:
-            fprintf(stderr, "Macro cannot be empty.\n");
-            break;
-        case MACRO_INVALID_FIRST_CHAR:
-            fprintf(stderr, "Invalid first character in macro.\n");
-            break;
-        case MACRO_ONLY_PRINTABLE:
-            fprintf(stderr, "Macro must contain only printable characters.\n");
-            break;
-        case MACRO_CANT_BE_COMMAND:
-            fprintf(stderr, "Macro cannot be a command.\n");
-            break;
-        case MACRO_ALREADY_EXISTS:
-            fprintf(stderr, "Macro already exists.\n");
-            break;
-        case MACRO_CANT_BE_REGISTER:
-            fprintf(stderr, "Macro cannot be a register.\n");
-            break;
-        case MACRO_CANT_BE_INSTRUCT:
-            fprintf(stderr, "Macro cannot be an instruction.\n");
-            break;
-        case LABEL_TOO_LONG:
-            fprintf(stderr, "Label is too long.\n");
-            break;
-        case LABEL_CANT_BE_EMPTY:
-            fprintf(stderr, "Label cannot be empty.\n");
-            break;
-        case LABEL_INVALID_FIRST_CHAR:
-            fprintf(stderr, "Invalid first character in label.\n");
-            break;
-        case LABEL_ONLY_ALPHANUMERIC:
-            fprintf(stderr, "Label must contain only alphanumeric characters.\n");
-            break;
-        case LABEL_CANT_BE_COMMAND:
-            fprintf(stderr, "Label cannot be a command.\n");
-            break;
-        case LABEL_ALREADY_EXISTS:
-            fprintf(stderr, "Label already exists.\n");
-            break;
-        case WARNING_LABEL_ONLY:
-            fprintf(stderr, "Warning: Label only.\n");
-            break;
-        case LABEL_CANT_BE_REGISTER:
-            fprintf(stderr, "Label cannot be a register.\n");
-            break;
-        case LABEL_CANT_BE_INSTRUCT:
-            fprintf(stderr, "Label cannot be an instruction.\n");
-            break;
-        case DEFINE_EXPECTED_NUM:
-            fprintf(stderr, "Expected number after define.\n");
-            break;
-        case DEFINE_CANT_HAVE_LABEL:
-            fprintf(stderr, "Define cannot have a label.\n");
-            break;
-        case INSTRUCTION_NOT_FOUND:
-            fprintf(stderr, "Instruction not found.\n");
-            break;
-        case INSTRUCTION_NO_PARAMS:
-            fprintf(stderr, "Instruction does not take any parameters.\n");
-            break;
-        case INSTRUCTION_INVALID_NUM_PARAMS:
-            fprintf(stderr, "Invalid number of parameters for instruction.\n");
-            break;
-        case DATA_COMMAS_IN_A_ROW:
-            fprintf(stderr, "Commas in a row in data.\n");
-            break;
-        case DATA_EXPECTED_CONST:
-            fprintf(stderr, "Expected a num or a constant in data.\n");
-            break;
-        case DATA_EXPECTED_COMMA_AFTER_NUM:
-            fprintf(stderr, "Expected comma after number in data.\n");
-            break;
-        case DATA_UNEXPECTED_COMMA:
-            fprintf(stderr, "Unexpected comma in data.\n");
-            break;
-        case DATA_LABEL_DOES_NOT_EXIST:
-            fprintf(stderr, "Label does not exist in data.\n");
-            break;
-        case STRING_TOO_MANY_OPERANDS:
-            fprintf(stderr, "Too many operands for string.\n");
-            break;
-        case STRING_UNEXPECTED_CHARS:
-            fprintf(stderr, "Unexpected characters in string.\n");
-            break;
-        case STRING_OPERAND_NOT_VALID:
-            fprintf(stderr, "Operand not valid in string.\n");
-            break;
-        case INVALID_ADDRESSING_TYPE:
-            fprintf(stderr, "Invalid addressing type.\n");
-            break;
-        case INDEX_EXPECTED_CLOSING_BRACKET:
-            fprintf(stderr, "Expected closing bracket for index.\n");
-            break;
-        case INDEX_INVALID_POSITION:
-            fprintf(stderr, "Invalid position for index.\n");
-            break;
-        case EXPECTED_COMMA_BETWEEN_OPERANDS:
-            fprintf(stderr, "Expected comma between operands.\n");
-            break;
-        case EXTERN_NO_LABEL:
-            fprintf(stderr, "Extern cannot be a label.\n");
-            break;
-        case EXTERN_INVALID_LABEL:
-            fprintf(stderr, "Invalid label in extern.\n");
-            break;
-        case EXTERN_TOO_MANY_OPERANDS:
-            fprintf(stderr, "Too many operands in extern.\n");
-            break;
-        case COMMAND_NOT_FOUND:
-            fprintf(stderr, "Command not found.\n");
-            break;
-        case COMMAND_UNEXPECTED_CHAR:
-            fprintf(stderr, "Unexpected character in command.\n");
-            break;
-        case COMMAND_TOO_MANY_OPERANDS:
-            fprintf(stderr, "Too many operands in command.\n");
-            break;
-        case COMMAND_INVALID_ADDRESSING:
-            fprintf(stderr, "Invalid type in command.\n");
-            break;
-        case COMMAND_INVALID_NUMBER_OF_OPERANDS:
-            fprintf(stderr, "Invalid number of operands in command.\n");
-            break;
-        case COMMAND_LABEL_DOES_NOT_EXIST:
-            fprintf(stderr, "Label does not exist in command.\n");
-            break;
-        case ENTRY_LABEL_DOES_NOT_EXIST:
-            fprintf(stderr, "Label does not exist in entry.\n");
-            break;
-        case ENTRY_TOO_MANY_OPERANDS:
-            fprintf(stderr, "Too many operands in entry.\n");
-            break;
-        case ENTRY_CANT_BE_EXTERN:
-            fprintf(stderr, "Entry cannot be extern.\n");
-            break;
-        case CANNOT_OPEN_FILE:
-            fprintf(stderr, "Cannot open file.\n");
-            break;
-        case FAILED_TO_ALLOCATE_MEMORY:
-            fprintf(stderr, "Failed to allocate memory.\n");
-            break;
-        default:
-            fprintf(stderr, "Unknown error code.\n");
-            break;
-    }
+	switch (error_code)
+	{
+	case WARNING_LINE_TOO_LONG:
+		fprintf(stderr, "Warning: Line too long.\n");
+		break;
+	case NUM_OUT_OF_RANGE:
+		fprintf(stderr, "Number out of range.\n");
+		break;
+	case MACRO_UNEXPECTED_CHARS:
+		fprintf(stderr, "Unexpected characters in macro.\n");
+		break;
+	case MACRO_TOO_LONG:
+		fprintf(stderr, "Macro is too long.\n");
+		break;
+	case MACRO_CANT_BE_EMPTY:
+		fprintf(stderr, "Macro cannot be empty.\n");
+		break;
+	case MACRO_INVALID_FIRST_CHAR:
+		fprintf(stderr, "Invalid first character in macro.\n");
+		break;
+	case MACRO_ONLY_PRINTABLE:
+		fprintf(stderr, "Macro must contain only printable characters.\n");
+		break;
+	case MACRO_CANT_BE_COMMAND:
+		fprintf(stderr, "Macro cannot be a command.\n");
+		break;
+	case MACRO_ALREADY_EXISTS:
+		fprintf(stderr, "Macro already exists.\n");
+		break;
+	case MACRO_CANT_BE_REGISTER:
+		fprintf(stderr, "Macro cannot be a register.\n");
+		break;
+	case MACRO_CANT_BE_INSTRUCT:
+		fprintf(stderr, "Macro cannot be an instruction.\n");
+		break;
+	case LABEL_TOO_LONG:
+		fprintf(stderr, "Label is too long.\n");
+		break;
+	case LABEL_CANT_BE_EMPTY:
+		fprintf(stderr, "Label cannot be empty.\n");
+		break;
+	case LABEL_INVALID_FIRST_CHAR:
+		fprintf(stderr, "Invalid first character in label.\n");
+		break;
+	case LABEL_ONLY_ALPHANUMERIC:
+		fprintf(stderr, "Label must contain only alphanumeric characters.\n");
+		break;
+	case LABEL_CANT_BE_COMMAND:
+		fprintf(stderr, "Label cannot be a command.\n");
+		break;
+	case LABEL_ALREADY_EXISTS:
+		fprintf(stderr, "Label already exists.\n");
+		break;
+	case WARNING_LABEL_ONLY:
+		fprintf(stderr, "Warning: Label only.\n");
+		break;
+	case LABEL_CANT_BE_REGISTER:
+		fprintf(stderr, "Label cannot be a register.\n");
+		break;
+	case LABEL_CANT_BE_INSTRUCT:
+		fprintf(stderr, "Label cannot be an instruction.\n");
+		break;
+	case DEFINE_EXPECTED_NUM:
+		fprintf(stderr, "Expected number after define.\n");
+		break;
+	case DEFINE_CANT_HAVE_LABEL:
+		fprintf(stderr, "Define cannot have a label.\n");
+		break;
+	case INSTRUCTION_NOT_FOUND:
+		fprintf(stderr, "Instruction not found.\n");
+		break;
+	case INSTRUCTION_NO_PARAMS:
+		fprintf(stderr, "Instruction does not take any parameters.\n");
+		break;
+	case INSTRUCTION_INVALID_NUM_PARAMS:
+		fprintf(stderr, "Invalid number of parameters for instruction.\n");
+		break;
+	case DATA_COMMAS_IN_A_ROW:
+		fprintf(stderr, "Commas in a row in data.\n");
+		break;
+	case DATA_EXPECTED_CONST:
+		fprintf(stderr, "Expected a num or a constant in data.\n");
+		break;
+	case DATA_EXPECTED_COMMA_AFTER_NUM:
+		fprintf(stderr, "Expected comma after number in data.\n");
+		break;
+	case DATA_UNEXPECTED_COMMA:
+		fprintf(stderr, "Unexpected comma in data.\n");
+		break;
+	case DATA_LABEL_DOES_NOT_EXIST:
+		fprintf(stderr, "Label does not exist in data.\n");
+		break;
+	case STRING_TOO_MANY_OPERANDS:
+		fprintf(stderr, "Too many operands for string.\n");
+		break;
+	case STRING_UNEXPECTED_CHARS:
+		fprintf(stderr, "Unexpected characters in string.\n");
+		break;
+	case STRING_OPERAND_NOT_VALID:
+		fprintf(stderr, "Operand not valid in string.\n");
+		break;
+	case INVALID_ADDRESSING_TYPE:
+		fprintf(stderr, "Invalid addressing type.\n");
+		break;
+	case INDEX_EXPECTED_CLOSING_BRACKET:
+		fprintf(stderr, "Expected closing bracket for index.\n");
+		break;
+	case INDEX_INVALID_POSITION:
+		fprintf(stderr, "Invalid position for index.\n");
+		break;
+	case EXPECTED_COMMA_BETWEEN_OPERANDS:
+		fprintf(stderr, "Expected comma between operands.\n");
+		break;
+	case EXTERN_NO_LABEL:
+		fprintf(stderr, "Extern cannot be a label.\n");
+		break;
+	case EXTERN_INVALID_LABEL:
+		fprintf(stderr, "Invalid label in extern.\n");
+		break;
+	case EXTERN_TOO_MANY_OPERANDS:
+		fprintf(stderr, "Too many operands in extern.\n");
+		break;
+	case COMMAND_NOT_FOUND:
+		fprintf(stderr, "Command not found.\n");
+		break;
+	case COMMAND_UNEXPECTED_CHAR:
+		fprintf(stderr, "Unexpected character in command.\n");
+		break;
+	case COMMAND_TOO_MANY_OPERANDS:
+		fprintf(stderr, "Too many operands in command.\n");
+		break;
+	case COMMAND_INVALID_ADDRESSING:
+		fprintf(stderr, "Invalid type in command.\n");
+		break;
+	case COMMAND_INVALID_NUMBER_OF_OPERANDS:
+		fprintf(stderr, "Invalid number of operands in command.\n");
+		break;
+	case COMMAND_LABEL_DOES_NOT_EXIST:
+		fprintf(stderr, "Label does not exist in command.\n");
+		break;
+	case ENTRY_LABEL_DOES_NOT_EXIST:
+		fprintf(stderr, "Label does not exist in entry.\n");
+		break;
+	case ENTRY_TOO_MANY_OPERANDS:
+		fprintf(stderr, "Too many operands in entry.\n");
+		break;
+	case ENTRY_CANT_BE_EXTERN:
+		fprintf(stderr, "Entry cannot be extern.\n");
+		break;
+	case CANNOT_OPEN_FILE:
+		fprintf(stderr, "Cannot open file.\n");
+		break;
+	case FAILED_TO_ALLOCATE_MEMORY:
+		fprintf(stderr, "Failed to allocate memory.\n");
+		break;
+	default:
+		fprintf(stderr, "Unknown error code.\n");
+		break;
+	}
 }
