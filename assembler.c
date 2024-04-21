@@ -52,10 +52,7 @@ int main(int argc, char *argv[])
             reset_global_vars();
 
             first_pass(fp);
-            if (warn)
-            {
-                printf("warning: %d\n", warn);
-            }
+            
 
             if (!has_error)
             { /* proceed to second pass */

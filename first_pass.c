@@ -14,17 +14,22 @@ void first_pass(FILE *fp)
 
     ic = 0;
     dc = 0;
-    err = FALSE;
+
     has_error = FALSE;
 
     while (fgets(line, LINESIZE + 1, fp) != NULL)
     {
-
+        err = FALSE;
+        warn = FALSE;
         if (!process_line(line))
         {
             has_error = TRUE;
             print_error_message(err, line_num);
             // write_error(line_num);
+        }
+        if (warn)
+        {
+            print_error_message(warn, line_num);
         }
         line_num++;
     }

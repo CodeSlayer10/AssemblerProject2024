@@ -12,16 +12,21 @@ void second_pass(FILE *fp)
     char line[LINESIZE + 1];
     int line_num = 1;
     ic = 0;
-    err = FALSE;
     has_error = FALSE;
 
     while (fgets(line, LINESIZE + 1, fp) != NULL)
     {
+        err = FALSE;
+        warn = FALSE;
         if (!process_line_second_pass(line))
         {
             has_error = TRUE;
             print_error_message(err, line_num);
             // write_error(line_num);
+        }
+        if (warn)
+        {
+            print_error_message(warn, line_num);
         }
         line_num++;
     }
