@@ -65,7 +65,7 @@ int process_line_second_pass(char *line)
     MOVE_TO_NOT_WHITE(line, index);
     if (operation != NONE_OP)
     {
-        process_operation(operation, &line[index]);
+        return process_operation(operation, &line[index]);
     }
 }
 
@@ -83,11 +83,11 @@ int process_operation(opcode operation, char *args)
         ic++;
         return TRUE;
     case 1:
-        dst_operand_type = dst_operand_type = extract_bits(instructions[ic], DEST_TYPE_START_POS, DEST_TYPE_END_POS);
+        dst_operand_type = extract_bits(instructions[ic], DEST_TYPE_START_POS, DEST_TYPE_END_POS);
         break;
     case 2:
         src_operand_type = extract_bits(instructions[ic], SRC_TYPE_START_POS, SRC_TYPE_END_POS);
-        dst_operand_type = dst_operand_type = extract_bits(instructions[ic], DEST_TYPE_START_POS, DEST_TYPE_END_POS);
+        dst_operand_type = extract_bits(instructions[ic], DEST_TYPE_START_POS, DEST_TYPE_END_POS);
         break;
     }
 
