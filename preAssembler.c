@@ -12,21 +12,28 @@ void preAssembler(FILE *file, FILE *fp)
     char macro[SYMBOL_MAX_SIZE + 1];
     unsigned char index = 0;
     int line_num = 1;
-    while (fgets(line, LINESIZE + 2, file) != NULL)
+    while (fgets(line, sizeof(line), file) != NULL)
     {
         err = FALSE;
         warn = FALSE;
-
         if (strlen(line) == LINESIZE + 1 && line[LINESIZE] != '\n')
-        {
-            line[LINESIZE] = '\n';
-            line[LINESIZE+1] = '\0';
-            print_error_message(WARNING_LINE_TOO_LONG, line_num);
+        { // Check if last character is not newline
+
+            warn = WARNING_LINE_TOO_LONG;
+            print_error_message(warn, line_num);
+
+            // Flush the rest of the line to avoid processing remnants
+            int ch;
+            while ((ch = fgetc(file)) != '\n' && ch != EOF)
+                ;
+            line[LINESIZE-1] = '\n';
+            line[LINESIZE+1] = '\0'; // Truncate line
         }
         if (!pre_process_line(line, fp, macro))
         {
             print_error_message(err, line_num);
         }
+
         line_num++;
     }
 }
@@ -38,7 +45,7 @@ int pre_process_line(char *line, FILE *fp, char *macro)
 
     MOVE_TO_NOT_WHITE(line, index);
 
-    if (line[index] == '\0' || line[index] == ';')
+    if (is_end_of_line(line[index]) || line[index] == ';')
         return TRUE;
 
     int length = find_next_symbol(&line[index], field, ' ');
@@ -47,7 +54,7 @@ int pre_process_line(char *line, FILE *fp, char *macro)
     if (length == SYMBOL_MAX_SIZE)
         field[0] = '\0';
 
-    node *tmp = lookup(&macroTable, field);
+    node *tmp = lookup(macroTable, field);
     MOVE_TO_NOT_WHITE(line, index);
 
     if (tmp != NULL)
@@ -89,10 +96,13 @@ int pre_process_line(char *line, FILE *fp, char *macro)
     else
     {
         if (macro[0])
-            insert(&macroTable, macro, line);
+            insert(macroTable, macro, line);
         else
+        {
             fputs(line, fp);
+        }
     }
+  
     return TRUE;
 }
 

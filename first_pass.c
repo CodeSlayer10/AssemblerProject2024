@@ -9,7 +9,7 @@
 
 void first_pass(FILE *fp)
 {
-    char line[LINESIZE + 1];
+    char line[LINESIZE + 2];
     int line_num = 1;
 
     ic = 0;
@@ -17,7 +17,7 @@ void first_pass(FILE *fp)
 
     has_error = FALSE;
 
-    while (fgets(line, LINESIZE + 1, fp) != NULL)
+    while (fgets(line, sizeof(line), fp) != NULL)
     {
         err = FALSE;
         warn = FALSE;
@@ -60,8 +60,9 @@ int process_line(char *line)
 
     MOVE_TO_NOT_WHITE(line, index);
 
-    if (is_end_of_line(line[index]))
+    if (symbol[0] && is_end_of_line(line[index]))
     {
+        
         warn = WARNING_LABEL_ONLY;
         return TRUE; // warning empty symbol: [name]
     }

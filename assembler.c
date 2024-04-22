@@ -12,7 +12,7 @@ unsigned int data[MAX_MEMORY_SIZE - RESERVED_MEMORY];
 unsigned int instructions[MAX_MEMORY_SIZE - RESERVED_MEMORY];
 Symbol *symbols = NULL;
 external *externals = NULL;
-hashEntry **macroTable = NULL;
+hashTable *macroTable = NULL;
 
 int main(int argc, char *argv[])
 {
@@ -20,12 +20,11 @@ int main(int argc, char *argv[])
     char *input_filename;
     FILE *file;
     FILE *fp;
-    hashEntry **macroTable = initTable();
-    
+    macroTable = initTable();
+
     for (i = 1; i < argc; i++)
     {
 
-        // resetTable(macroTable);
         reset_global_vars();
 
         input_filename = create_file_name(argv[i], AS_FILE); /* Appending .as to filename */
@@ -61,12 +60,12 @@ int main(int argc, char *argv[])
                 printf("************* FINISHED %s assembling process *************\n\n", input_filename);
             }
 
-            reset_global_vars();
-
             fclose(fp);
         }
         else
             free(input_filename);
     }
+    reset_global_vars();
+
     return 0;
 }

@@ -9,12 +9,12 @@
 
 void second_pass(FILE *fp)
 {
-    char line[LINESIZE + 1];
+    char line[LINESIZE + 2];
     int line_num = 1;
     ic = 0;
     has_error = FALSE;
 
-    while (fgets(line, LINESIZE + 1, fp) != NULL)
+    while (fgets(line, sizeof(line), fp) != NULL)
     {
         err = FALSE;
         warn = FALSE;
@@ -77,50 +77,40 @@ int process_line_second_pass(char *line)
 int process_operation(opcode operation, char *args)
 {
     int index = 0;
-    int i = 0, j = 0;
-    char first_operand[LINESIZE], second_operand[LINESIZE]; /* will hold first and second operands */
-    char *src = first_operand, *dst = second_operand;
-    int count = get_operand_count_by_opcode(operation);
-    addressing_type src_operand_type = NONE_ADDR, dst_operand_type = NONE_ADDR;
-    switch (count)
-    {
-    case 0:
-        ic++;
-        return TRUE;
-    case 1:
-        dst_operand_type = extract_bits(instructions[ic], DEST_TYPE_START_POS, DEST_TYPE_END_POS);
-        break;
-    case 2:
-        src_operand_type = extract_bits(instructions[ic], SRC_TYPE_START_POS, SRC_TYPE_END_POS);
-        dst_operand_type = extract_bits(instructions[ic], DEST_TYPE_START_POS, DEST_TYPE_END_POS);
-        break;
-    }
+    char first_operand[LINESIZE], second_operand[LINESIZE];                     // Hold operands
+    char *src = NULL, *dst = NULL;                                              // Pointers to operands
+    int count = get_operand_count_by_opcode(operation);                         // Number of operands
+    addressing_type src_operand_type = NONE_ADDR, dst_operand_type = NONE_ADDR; // Operand types
 
-    if (count >= 1)
+    // Extract operand types based on the count of operands
+    if (count == 1 || count == 2)
     {
-        while (!is_end_of_line(args[index]) && !isspace(args[index]) && args[index] != ',')
-        {
-            first_operand[i++] = args[index++];
-        }
-        first_operand[i] = '\0';
-        second_operand[0] = '\0';
-        dst = first_operand;
-        src = NULL;
+        dst_operand_type = extract_bits(instructions[ic], DEST_TYPE_START_POS, DEST_TYPE_END_POS);
     }
     if (count == 2)
     {
-        index++;
-        MOVE_TO_NOT_WHITE(args, index);
-        while (!is_end_of_line(args[index]) && !isspace(args[index]) && args[index] != ',')
-        {
-            second_operand[j++] = args[index++];
-        }
-        second_operand[j] = '\0';
-        src = first_operand;
-        dst = second_operand;
+        src_operand_type = extract_bits(instructions[ic], SRC_TYPE_START_POS, SRC_TYPE_END_POS);
     }
-    ic++;
 
+    // Extract operands from the argument string
+    index += find_next_symbol(args, first_operand, ',');
+    index++;
+    index += find_next_symbol(&args[index], second_operand, ',');
+
+    // Set src and dst pointers based on the number of operands
+    if (count >= 1)
+    {
+        dst = first_operand; // First operand is destination
+    }
+    if (count == 2)
+    {
+        src = first_operand;  // Second operand is source
+        dst = second_operand; // First operand becomes destination
+    }
+
+    ic++; // Increment instruction count
+
+    // Encode additional words based on operands and their types
     return encode_additional_words(src, dst, src_operand_type, dst_operand_type);
 }
 
@@ -182,27 +172,15 @@ int encode_label(char *symbol)
     insert_instructions(word);
     return TRUE;
 }
-
 int encode_additional_word(int is_dst, addressing_type type, char *operand)
 {
-    unsigned int word = 0; /* An empty word */
-    char *tmp1;
-    char *tmp2;
+    unsigned int word = 0;
     int is_valid = TRUE;
 
     switch (type)
     {
-    case IMMEDIATE_ADDR: /* Extracting immediate number */
-        if (is_int_str(&operand[1]))
-        {
-            word = (unsigned int)atoi(&operand[1]);
-            insert_are(word, ABSOLUTE);
-            insert_instructions(word);
-        }
-        else
-        {
-            is_valid = encode_label(&operand[1]);
-        }
+    case IMMEDIATE_ADDR:
+        is_valid = handle_immediate_address(operand, &word);
         break;
 
     case DIRECT_ADDR:
@@ -210,36 +188,62 @@ int encode_additional_word(int is_dst, addressing_type type, char *operand)
         break;
 
     case INDEX_ADDR:
-        tmp1 = strchr(operand, '[');
-        *tmp1 = '\0';
-        is_valid = encode_label(operand);
-        *tmp1 = '[';
-        tmp1++;
-        tmp2 = strchr(operand, ']');
-        *tmp2 = '\0';
-        if (is_int_str(tmp1))
-        {
-            word = (unsigned int)atoi(tmp1);
-            word = insert_are(word, ABSOLUTE);
-            insert_instructions(word);
-        }
-        else
-        {
-            if (is_valid)
-            {
-                is_valid = encode_label(tmp1);
-            }
-            else
-            {
-                encode_label(tmp1);
-            }
-        }
-        *tmp2 = ']';
+        is_valid = handle_index_address(operand, &word);
         break;
 
     case REGISTER_ADDR:
         word = build_register_word(is_dst, operand);
         insert_instructions(word);
+        break;
     }
+
+    return is_valid;
+}
+
+int handle_immediate_address(char *operand, unsigned int *word)
+{
+    if (is_int_str(&operand[1]))
+    {
+        *word = (unsigned int)atoi(&operand[1]);
+        insert_are(*word, ABSOLUTE);
+        insert_instructions(*word);
+        return TRUE;
+    }
+    else
+    {
+        return encode_label(&operand[1]);
+    }
+}
+
+int handle_index_address(char *operand, unsigned int *word)
+{
+    char *opening_bracket;
+    char *closing_bracket;
+    int is_valid;
+    opening_bracket = strchr(operand, '[');
+    closing_bracket = strchr(operand, ']');
+    *opening_bracket = '\0';
+    is_valid = encode_label(operand);
+    *opening_bracket = '[';
+    opening_bracket++;
+    *closing_bracket = '\0';
+    if (is_int_str(opening_bracket))
+    {
+        *word = (unsigned int)atoi(opening_bracket);
+        *word = insert_are(*word, ABSOLUTE);
+        insert_instructions(*word);
+    }
+    else
+    {
+        if (is_valid)
+        {
+            is_valid = encode_label(opening_bracket);
+        }
+        else
+        {
+            encode_label(opening_bracket);
+        }
+    }
+    *closing_bracket = ']';
     return is_valid;
 }

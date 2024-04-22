@@ -147,8 +147,6 @@ int dataHandler(char *args)
 
     while (!is_end_of_line(args[index]))
     {
-        int i = 0;
-        // pos = index;
         if (args[index] == ',')
         {
             err = DATA_UNEXPECTED_COMMA;
@@ -259,8 +257,6 @@ int entryValidator(char *arg)
     int index = 0;
     char symbol[SYMBOL_MAX_SIZE + 1];
 
-    int i = 0;
-
     index += find_next_symbol(&arg[index], symbol, ',');
     if (!is_valid_symbol(symbol))
     {
@@ -304,8 +300,6 @@ int externHandler(char *arg)
 {
     int index = 0;
     char symbol[SYMBOL_MAX_SIZE + 1];
-
-    int i = 0;
 
     index += find_next_symbol(&arg[index], symbol, ',');
 

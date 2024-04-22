@@ -228,6 +228,11 @@ int is_valid_symbol(char *symbol)
 		return FALSE;
 	}
 
+	if (lookup(macroTable, symbol) != NULL) {
+		err = LABEL_CANT_BE_MACRO;
+		return FALSE;
+	}
+
 	// If all conditions are met, return true
 	return TRUE;
 }

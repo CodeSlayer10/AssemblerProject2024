@@ -14,4 +14,4 @@ int has_external;
 int has_error;
 extern Symbol *symbols;
 extern external *externals;
-extern hashEntry **macroTable;
+extern hashTable *macroTable;
