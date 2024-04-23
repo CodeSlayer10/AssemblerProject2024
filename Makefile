@@ -8,7 +8,7 @@ CFLAGS = -ansi -Wall -pedantic -I./headers
 GLOBAL_DEPS = ./headers/globals.h ./headers/vars.h
 
 # Object files needed to create the executable
-EXE_DEPS = hashTable.o preAssembler.o utils.o extTable.o symbolTable.o dataHandlers.o cmdHandlers.o first_pass.o extTable.o second_pass.o writeFiles.o assembler.o 
+EXE_DEPS = hashTable.o preAssembler.o utils.o extTable.o symbolTable.o dataHandlers.o cmdHandlers.o firstPass.o extTable.o secondPass.o writeFiles.o assembler.o 
 # Executable name
 TARGET = asm
 
@@ -30,10 +30,10 @@ preAssembler.o: preAssembler.c ./headers/preAssembler.h $(GLOBAL_DEPS)
 assembler.o: assembler.c $(GLOBAL_DEPS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-first_pass.o: first_pass.c ./headers/first_pass.h $(GLOBAL_DEPS)
+firstPass.o: firstPass.c ./headers/firstPass.h $(GLOBAL_DEPS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-second_pass.o: second_pass.c ./headers/second_pass.h $(GLOBAL_DEPS)
+secondPass.o: secondPass.c ./headers/secondPass.h $(GLOBAL_DEPS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 extTable.o: extTable.c ./headers/extTable.h $(GLOBAL_DEPS)

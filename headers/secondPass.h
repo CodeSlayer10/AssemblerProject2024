@@ -1,5 +1,4 @@
-#include <stdlib.h>
-#include "globals.h"
+#include "utils.h"
 
 void second_pass(FILE *fp);
 int process_line_second_pass(char *line);

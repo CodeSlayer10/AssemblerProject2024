@@ -196,7 +196,7 @@ int is_valid_symbol(char *symbol)
 	// Check if the first character of the symbol is not '\0' (non-empty string)
 	if (!symbol[0])
 	{
-		err = LABEL_CANT_BE_EMPTY;
+		err = WARNING_EMPTY_LABEL;
 		return FALSE;
 	}
 
@@ -228,7 +228,8 @@ int is_valid_symbol(char *symbol)
 		return FALSE;
 	}
 
-	if (lookup(macroTable, symbol) != NULL) {
+	if (lookup(macroTable, symbol) != NULL)
+	{
 		err = LABEL_CANT_BE_MACRO;
 		return FALSE;
 	}
@@ -270,7 +271,6 @@ int is_valid_macro(char *macro)
 	// If all conditions are met, return true
 	return TRUE;
 }
-
 
 int is_end_of_line(char chr)
 {
@@ -427,9 +427,7 @@ void print_error_message(error error_code, int line_num)
 	case LABEL_TOO_LONG:
 		fprintf(stderr, "Label is too long.\n");
 		break;
-	case LABEL_CANT_BE_EMPTY:
-		fprintf(stderr, "Label cannot be empty.\n");
-		break;
+
 	case LABEL_INVALID_FIRST_CHAR:
 		fprintf(stderr, "Invalid first character in label.\n");
 		break;
@@ -442,8 +440,11 @@ void print_error_message(error error_code, int line_num)
 	case LABEL_ALREADY_EXISTS:
 		fprintf(stderr, "Label already exists.\n");
 		break;
-	case WARNING_LABEL_ONLY:
-		fprintf(stderr, "Warning: Label only.\n");
+	case LABEL_CANT_BE_MACRO:
+		fprintf(stderr, "Label cannot be a macro.\n");
+		break;
+	case WARNING_EMPTY_LABEL:
+		fprintf(stderr, "Warning: Label is empty.\n");
 		break;
 	case LABEL_CANT_BE_REGISTER:
 		fprintf(stderr, "Label cannot be a register.\n");
@@ -457,6 +458,9 @@ void print_error_message(error error_code, int line_num)
 	case DEFINE_CANT_HAVE_LABEL:
 		fprintf(stderr, "Define cannot have a label.\n");
 		break;
+	case DEFINE_EXPECTED_EQUAL:
+		fprintf(stderr, "Define must have an equal sign.\n");
+
 	case INSTRUCTION_NOT_FOUND:
 		fprintf(stderr, "Instruction not found.\n");
 		break;
@@ -541,9 +545,13 @@ void print_error_message(error error_code, int line_num)
 	case CANNOT_OPEN_FILE:
 		fprintf(stderr, "Cannot open file.\n");
 		break;
+	case FAILED_TO_CREATE_FILE:
+		fprintf(stderr, "Cannot create file.\n");
+		break;
 	case FAILED_TO_ALLOCATE_MEMORY:
 		fprintf(stderr, "Failed to allocate memory.\n");
 		break;
+
 	default:
 		fprintf(stderr, "Unknown error code.\n");
 		break;

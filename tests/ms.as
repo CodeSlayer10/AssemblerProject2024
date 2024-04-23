@@ -1,11 +1,11 @@
-;mcr m_mcr 
-;    inc r2
-;    mov r3, r1 
-;endmcr
+mcr m_mcr 
+    inc r2
+    mov r3, r1 
+endmcr
 
 .entry LIST
 .extern W
-.define sz = 2
+.define sz=3
 MAIN: mov r3, LIST[sz]
 LOOP: jmp W
 prn #-5

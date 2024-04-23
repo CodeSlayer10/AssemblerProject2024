@@ -12,3 +12,4 @@ char *create_file_name(char *filename, FILE_TYPE type);
 void write_output_files(char *filename);
 
 FILE *open_file(char *filename, FILE_TYPE type);
+

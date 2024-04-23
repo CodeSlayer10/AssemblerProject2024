@@ -19,7 +19,6 @@ int is_int_str(char *str);
 int is_alphanum_str(char *str);
 int is_printable_str(char *str);
 int is_in_range(int num);
-// int find_next_item(char *args);
 int is_end_of_line(char chr);
 int validate_operand_count_by_opcode(opcode operation, int count);
 int get_operand_count_by_opcode(opcode operation);
@@ -32,3 +31,5 @@ void reset_global_vars();
 int find_next_symbol(char *line, char *symbol, char del);
 int find_next_token(char *line, char *token, char del);
 void print_error_message(error error_code, int line_num);
+
+

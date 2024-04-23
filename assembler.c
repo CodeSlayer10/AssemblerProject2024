@@ -1,6 +1,6 @@
 #include <stdlib.h>
-#include "first_pass.h"
-#include "second_pass.h"
+#include "firstPass.h"
+#include "secondPass.h"
 #include "preAssembler.h"
 #include "vars.h"
 #include "utils.h"
@@ -20,52 +20,91 @@ int main(int argc, char *argv[])
     char *input_filename;
     FILE *file;
     FILE *fp;
+    // Initialize macro table
     macroTable = initTable();
 
+    // Loop through each command-line argument
     for (i = 1; i < argc; i++)
     {
-
+        // Reset global variables for each input file
         reset_global_vars();
 
-        input_filename = create_file_name(argv[i], AS_FILE); /* Appending .as to filename */
+        // Create filename for input file with .as extension
+        input_filename = create_file_name(argv[i], AS_FILE);
+
+        // Open input file for reading
         file = fopen(input_filename, "r");
-        if (fp != NULL)
+
+        // Check if the file was opened successfully
+        if (file != NULL)
         {
+            // Print pre-assembling process start message
             printf("************* Started %s pre_assembling process *************\n\n", input_filename);
+
+            // Free memory allocated for input filename
             free(input_filename);
-            input_filename = create_file_name(argv[i], AM_FILE); /* Appending .am to filename */
+
+            // Create filename for output file with .am extension
+            input_filename = create_file_name(argv[i], AM_FILE);
+
+            // Open output file for writing
             fp = fopen(input_filename, "w");
-            preAssembler(file, fp);
-            fclose(fp);
-            fp = fopen(input_filename, "r");
 
-            printf("************* FINISHED %s pre_assembling process *************\n\n", input_filename);
-
-            if (!has_error)
+            // Check if the output file was created successfully
+            if (fp != NULL)
             {
-                printf("************* Started %s assembling process *************\n\n", input_filename);
+                // Perform pre-assembly process
+                preAssembler(file, fp);
 
-                first_pass(fp);
+                // Close output file
+                fclose(fp);
+
+                // Reopen output file for reading
+                fp = fopen(input_filename, "r");
+
+                // Check if there were no errors in pre-assembly process
+                if (!has_error)
+                {
+                    // Print assembling process start message
+                    printf("************* Started %s assembling process *************\n\n", input_filename);
+
+                    // Perform first pass of assembly process
+                    first_pass(fp);
+                }
+
+                // Check if there were no errors in first pass
+                if (!has_error)
+                {
+                    // Rewind output file to beginning
+                    rewind(fp);
+
+                    // Perform second pass of assembly process
+                    second_pass(fp);
+                }
+
+                // Check if there were no errors in second pass
+                if (!has_error)
+                {
+                    // Write output files
+                    write_output_files(argv[i]);
+
+                    // Print assembling process finish message
+                    printf("\n************* Finished %s assembling process *************\n\n", input_filename);
+                }
+
+                // Close output file
+                fclose(fp);
+                free(input_filename);
             }
-
-            if (!has_error)
-            { /* proceed to second pass */
-                rewind(fp);
-
-                second_pass(fp);
-            }
-            if (!has_error)
-            {
-                write_output_files(argv[i]);
-                printf("************* FINISHED %s assembling process *************\n\n", input_filename);
-            }
-
-            fclose(fp);
+            else
+                print_error_message(FAILED_TO_CREATE_FILE, 0);
         }
         else
-            free(input_filename);
-    }
-    reset_global_vars();
+        {
+            print_error_message(CANNOT_OPEN_FILE, 0);
+        }
+        reset_global_vars();
 
-    return 0;
+        return 0;
+    }
 }
