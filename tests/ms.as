@@ -13,7 +13,7 @@ mov STR[5], STR[2]
 sub r1, r4
 cmp K, #sz
 bne W
-;m_mcr
+m_mcr
 L1: inc L3 
 .entry LOOP
 bne LOOP

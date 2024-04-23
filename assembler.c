@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
                 if (!has_error)
                 {
                     // Print assembling process start message
-                    printf("************* Started %s assembling process *************\n\n", input_filename);
+                    printf("\n************* Started %s assembling process *************\n\n", input_filename);
 
                     // Perform first pass of assembly process
                     first_pass(fp);
@@ -90,6 +90,11 @@ int main(int argc, char *argv[])
 
                     // Print assembling process finish message
                     printf("\n************* Finished %s assembling process *************\n\n", input_filename);
+                }
+                else
+                {
+                    // Print assembling process Failed message
+                    printf("\n************* Failed %s assembling process *************\n\n", input_filename);
                 }
 
                 // Close output file

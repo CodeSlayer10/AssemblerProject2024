@@ -7,8 +7,8 @@
 
 #define CONCAT(a, b) a##b
 
-char *strallocat(char *s0, char *s1);
 void *checkedAlloc(long size);
+char *strallocat(char *s0, char *s1);
 int is_reserved(char *name, int is_symbol);
 int is_valid_symbol(char *symbol);
 int is_valid_macro(char *macro);
@@ -31,5 +31,3 @@ void reset_global_vars();
 int find_next_symbol(char *line, char *symbol, char del);
 int find_next_token(char *line, char *token, char del);
 void print_error_message(error error_code, int line_num);
-
-
