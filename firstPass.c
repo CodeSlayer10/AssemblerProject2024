@@ -298,8 +298,8 @@ int command_accept_methods(opcode type, addressing_type first_operand, addressin
     switch (type)
     {
     /* These opcodes only accept
-     * Source: 0, 1, 2, 3
-     * Destination: 1, 2, 3
+     * Src: 0, 1, 2, 3
+     * Dst 1, 2, 3
      */
     case MOV_OP:
     case ADD_OP:
@@ -309,8 +309,8 @@ int command_accept_methods(opcode type, addressing_type first_operand, addressin
                (second_operand >= DIRECT_ADDR && second_operand <= REGISTER_ADDR);
 
     /* LEA opcode only accept
-     * Source: 1, 2
-     * Destination: 1, 2, 3
+     * Src: 1, 2
+     * Dst: 1, 2, 3
      */
     case LEA_OP:
         return ((first_operand == DIRECT_ADDR || first_operand == INDEX_ADDR) &&
@@ -332,9 +332,7 @@ int command_accept_methods(opcode type, addressing_type first_operand, addressin
                 first_operand == INDEX_ADDR ||
                 first_operand == REGISTER_ADDR);
 
-    /* These opcodes are always ok because they accept all methods/none of them and
-     * number of operands is being verified in another function
-     */
+    // These opcodes accept any or no methods.
     case PRN_OP:
     case RTS_OP:
     case HLT_OP:
