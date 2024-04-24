@@ -16,6 +16,13 @@
 #define BITS_IN_ARE 2        // Number of bits for ARE
 #define BITS_IN_REGISTER 3   // Number of bits for register
 
+/* Addressing methods bits location in the first word of a command */
+#define SRC_TYPE_START_POS 4
+#define SRC_TYPE_END_POS 5
+#define DST_TYPE_START_POS 2
+#define DST_TYPE_END_POS 3
+
+
 #define BASE4_SIZE 8 // Size of base-4 representation
 
 typedef enum ARE

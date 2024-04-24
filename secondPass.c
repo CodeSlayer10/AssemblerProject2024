@@ -124,7 +124,7 @@ int process_operation(opcode operation, char *args)
     // Extract operand types based on the count of operands
     if (count == 1 || count == 2)
     {
-        dst_operand_type = extract_bits(instructions[ic], DEST_TYPE_START_POS, DEST_TYPE_END_POS);
+        dst_operand_type = extract_bits(instructions[ic], DST_TYPE_START_POS, DST_TYPE_END_POS);
     }
     if (count == 2)
     {
