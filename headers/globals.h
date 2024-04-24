@@ -1,33 +1,28 @@
 
 #ifndef _GLOBALS_H
 #define _GLOBALS_H
-#define MAX_MEMORY_SIZE 4096
-#define LINESIZE 80
-#define SYMBOL_MAX_SIZE 31
-#define IC_INITIAL_SIZE 100
-#define RESERVED_MEMORY 100
-#define FALSE 0
-#define TRUE 1
+
+#define MAX_MEMORY_SIZE 4096 // Maximum memory size
+#define LINESIZE 80          // Maximum line size
+#define SYMBOL_MAX_SIZE 31   // Maximum size of a symbol
+#define RESERVED_MEMORY 100  // Reserved memory space
+#define FALSE 0              // False value
+#define TRUE 1               // True value
+
 /* Bit-related info */
-#define BITS_IN_WORD 14
-#define BITS_IN_OPCODE 4
-#define BITS_IN_ADDRESSING 2
-#define BITS_IN_ARE 2
-#define BITS_IN_REGISTER 3
+#define BITS_IN_WORD 14      // Number of bits in a word
+#define BITS_IN_OPCODE 4     // Number of bits for opcode
+#define BITS_IN_ADDRESSING 2 // Number of bits for addressing
+#define BITS_IN_ARE 2        // Number of bits for ARE
+#define BITS_IN_REGISTER 3   // Number of bits for register
 
-/* Addressing methods bits location in the first word of a command */
-#define SRC_TYPE_START_POS 4
-#define SRC_TYPE_END_POS 5
-#define DEST_TYPE_START_POS 2
-#define DEST_TYPE_END_POS 3
-
-#define BASE4_SIZE 8
+#define BASE4_SIZE 8 // Size of base-4 representation
 
 typedef enum ARE
 {
-    ABSOLUTE,
-    EXTERN,
-    RELOCATABLE
+    ABSOLUTE,   // Absolute addressing mode
+    EXTERN,     // External addressing mode
+    RELOCATABLE // Relocatable addressing mode
 } ARE;
 
 typedef enum opcode
@@ -67,48 +62,55 @@ typedef enum reg
 
 typedef enum attribute
 {
-    MDEFINE,
-    CODE,
-    DATA,
-    EXTERNAL,
-    ENTRY,
-    NONE,
-    ERROR
+    MDEFINE,  // Macro definition attribute
+    CODE,     // Code attribute
+    DATA,     // Data attribute
+    EXTERNAL, // External attribute
+    ENTRY,    // Entry attribute
+    NONE,     // No attribute
+    ERROR     // Error attribute
 } attribute;
-
+/*
+ERROR wasn't used in the end,
+but the idea was that if a symbol
+as valid but not correctly defined
+or empty it would be added with an ERROR attr
+and there would only be one error instead of per use.
+*/
 typedef enum instruction
 {
-    DEFINE_IN,
-    STRING_IN,
-    DATA_IN,
-    EXTERN_IN,
-    ENTRY_IN,
-    NONE_IN,
-    ERROR_IN
+    DEFINE_IN, // Define instruction
+    STRING_IN, // String instruction
+    DATA_IN,   // Data instruction
+    EXTERN_IN, // External instruction
+    ENTRY_IN,  // Entry instruction
+    NONE_IN,   // No instruction
+    ERROR_IN   // Error instruction
 } instruction;
 
 typedef enum addressing_type
 {
-    IMMEDIATE_ADDR,
-    DIRECT_ADDR,
-    INDEX_ADDR,
-    REGISTER_ADDR,
-    NONE_ADDR,
-    ERROR_ADDR
+    IMMEDIATE_ADDR, // Immediate addressing mode
+    DIRECT_ADDR,    // Direct addressing mode
+    INDEX_ADDR,     // Index addressing mode
+    REGISTER_ADDR,  // Register addressing mode
+    NONE_ADDR,      // No addressing mode
+    ERROR_ADDR      // Error addressing mode
 } addressing_type;
 
 typedef enum FILE_TYPE
 {
-    AS_FILE,
-    AM_FILE,
-    OB_FILE,
-    ENT_FILE,
-    EXT_FILE
+    AS_FILE,  // Assembly source file
+    AM_FILE,  // Assembled machine code file
+    OB_FILE,  // Object file
+    ENT_FILE, // Entry file
+    EXT_FILE  // External file
 } FILE_TYPE;
 
+// Error codes for various errors encountered in the program for error handling.
 typedef enum errors
 {
-    WARNING_LINE_TOO_LONG=1,
+    WARNING_LINE_TOO_LONG = 1,
     NUM_OUT_OF_RANGE,
     MACRO_UNEXPECTED_CHARS,
     MACRO_TOO_LONG,

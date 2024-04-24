@@ -22,7 +22,7 @@ typedef struct hashTable
     hashEntry *table[HASHSIZE];
 } hashTable;
 
-unsigned int hash(char *key); 
+unsigned int hash(char *); 
 node *lookup(hashTable *table, char *key);
 void insert(hashTable *table, char *key, char *line);
 hashTable *initTable();
