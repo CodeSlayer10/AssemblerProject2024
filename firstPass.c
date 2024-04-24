@@ -317,8 +317,8 @@ int command_accept_methods(opcode type, addressing_type first_operand, addressin
                 (second_operand >= DIRECT_ADDR && second_operand <= REGISTER_ADDR));
 
     /* These opcodes only accept
-     * Source: NONE
-     * Destination: 1, 2, 3
+     * Src: NONE
+     * Dst: 1, 2, 3
      */
     case NOT_OP:
     case CLR_OP:
