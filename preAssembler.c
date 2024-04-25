@@ -35,7 +35,7 @@ void preAssembler(FILE *file, FILE *fp)
             int ch;
             while ((ch = fgetc(file)) != '\n' && ch != EOF)
                 ;
-            line[LINESIZE - 1] = '\n'; // Add newline character at correct position
+            line[LINESIZE] = '\n'; // Add newline character at correct position
             line[LINESIZE + 1] = '\0'; // Truncate line to LINESIZE characters
         }
 

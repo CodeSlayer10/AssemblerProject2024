@@ -20,8 +20,7 @@ int main(int argc, char *argv[])
     char *input_filename;
     FILE *file;
     FILE *fp;
-    // Initialize macro table
-    macroTable = initTable();
+    macroTable = initTable(); // Initialize macro table
 
     // Loop through each command-line argument
     for (i = 1; i < argc; i++)
